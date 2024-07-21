@@ -1,0 +1,87 @@
+{
+  "project_info": {
+    "project_number": "530541456838",
+    "firebase_url": "https://green-wheels-97a8a-default-rtdb.firebaseio.com",
+    "project_id": "green-wheels-97a8a",
+    "storage_bucket": "green-wheels-97a8a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530541456838:android:058863920df85acd0056c7",
+        "android_client_info": {
+          "package_name": "com.developer.drivers_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8ZMnztS5H0oBP29_zQ4K7s0_IoROkq3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530541456838:android:adcb269cc833a62b0056c7",
+        "android_client_info": {
+          "package_name": "com.developer.usersapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8ZMnztS5H0oBP29_zQ4K7s0_IoROkq3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530541456838:android:9b78d219ae495e520056c7",
+        "android_client_info": {
+          "package_name": "com.greenwheels.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8ZMnztS5H0oBP29_zQ4K7s0_IoROkq3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530541456838:android:1dc2b8cc2a05bf2c0056c7",
+        "android_client_info": {
+          "package_name": "com.muhammadali.driversapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8ZMnztS5H0oBP29_zQ4K7s0_IoROkq3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
