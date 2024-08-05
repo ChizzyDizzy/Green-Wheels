@@ -15,79 +15,65 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-{
+class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
   CommonMethods cMethods = CommonMethods();
 
-  checkIfNetworkIsAvailable()
-  {
+  checkIfNetworkIsAvailable() {
     cMethods.checkConnectivity(context);
 
     signInFormValidation();
   }
 
-  signInFormValidation()
-  {
-
-    if(!emailTextEditingController.text.contains("@"))
-    {
+  signInFormValidation() {
+    if (!emailTextEditingController.text.contains("@")) {
       cMethods.displaySnackBar("please write valid email.", context);
-    }
-    else if(passwordTextEditingController.text.trim().length < 5)
-    {
-      cMethods.displaySnackBar("your password must be atleast 6 or more characters.", context);
-    }
-    else
-    {
+    } else if (passwordTextEditingController.text.trim().length < 5) {
+      cMethods.displaySnackBar(
+          "your password must be atleast 6 or more characters.", context);
+    } else {
       signInUser();
     }
   }
 
-  signInUser() async
-  {
+  signInUser() async {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) => LoadingDialog(messageText: "Please Wait..."),
+      builder: (BuildContext context) =>
+          LoadingDialog(messageText: "Please Wait..."),
     );
 
-    final User? userFirebase = (
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailTextEditingController.text.trim(),
-          password: passwordTextEditingController.text.trim(),
-        ).catchError((errorMsg)
-        {
-          Navigator.pop(context);
-          cMethods.displaySnackBar(errorMsg.toString(), context);
-        })
-    ).user;
+    final User? userFirebase = (await FirebaseAuth.instance
+        .signInWithEmailAndPassword(
+      email: emailTextEditingController.text.trim(),
+      password: passwordTextEditingController.text.trim(),
+    ).catchError((errorMsg) {
+      Navigator.pop(context);
+      cMethods.displaySnackBar(errorMsg.toString(), context);
+    }))
+        .user;
 
-    if(!context.mounted) return;
+    if (!context.mounted) return;
     Navigator.pop(context);
 
-    if(userFirebase != null)
-    {
-      DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("drivers").child(userFirebase.uid);
-      await usersRef.once().then((snap)
-      {
-        if(snap.snapshot.value != null)
-        {
-          if((snap.snapshot.value as Map)["blockStatus"] == "no")
-          {
+    if (userFirebase != null) {
+      DatabaseReference usersRef =
+      FirebaseDatabase.instance.ref().child("drivers").child(userFirebase.uid);
+      await usersRef.once().then((snap) {
+        if (snap.snapshot.value != null) {
+          if ((snap.snapshot.value as Map)["blockStatus"] == "no") {
             // userName = (snap.snapshot.value as Map)["name"];
             // userPhone = (snap.snapshot.value as Map)["phone"];
-            Navigator.push(context, MaterialPageRoute(builder: (c)=> Dashboard()));
-          }
-          else
-          {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (c) => Dashboard()));
+          } else {
             FirebaseAuth.instance.signOut();
-            cMethods.displaySnackBar("you are blocked. Contact admin: xxxxx@gmail.com", context);
+            cMethods.displaySnackBar(
+                "you are blocked. Contact admin: xxxxx@gmail.com", context);
           }
-        }
-        else
-        {
+        } else {
           FirebaseAuth.instance.signOut();
           cMethods.displaySnackBar("Driver Doesn't exist .", context);
         }
@@ -95,27 +81,25 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
               children: [
-                const SizedBox(height: 22,),
-                Image.asset(
-                    "assets/images/uberexec.png"
+                const SizedBox(
+                  height: 50
                 ),
+                Image.asset("assets/images/uberleaf.png"),
 
                 const Text(
-                  "Login as a Driver to \nGreen Wheels",
+                  "Login as a Driver",
                   style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black
-                  ),
+                      color: Colors.black),
                 ),
 
                 /// TEXT FIELDS ///
@@ -127,6 +111,7 @@ class _LoginScreenState extends State<LoginScreen>
                         controller: emailTextEditingController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.email),
                           labelText: "Driver E-mail",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -152,12 +137,15 @@ class _LoginScreenState extends State<LoginScreen>
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(height: 22,),
+                      const SizedBox(
+                        height: 22,
+                      ),
                       TextField(
                         controller: passwordTextEditingController,
                         obscureText: true,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.lock),
                           labelText: "Driver Password",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -183,16 +171,17 @@ class _LoginScreenState extends State<LoginScreen>
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(height: 22,),
-
+                      const SizedBox(
+                        height: 22,
+                      ),
                       ElevatedButton(
-                        onPressed: ()
-                        {
+                        onPressed: () {
                           checkIfNetworkIsAvailable();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 80, vertical: 20),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -212,7 +201,8 @@ class _LoginScreenState extends State<LoginScreen>
                 /// TEXT FIELDS + BUTTON ///
                 TextButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (c)=> const SignupScreen()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (c) => const SignupScreen()));
                   },
                   child: const Text(
                     "Don't have an Account? Register Here",
@@ -221,10 +211,8 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
                 ),
-
               ],
-            )
-        ),
+            )),
       ),
     );
   }

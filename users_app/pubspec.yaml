@@ -45,6 +45,11 @@ dependencies:
   permission_handler: ^11.3.1
   geolocator: ^12.0.0
   iconsax: ^0.0.8
+  http: ^1.2.2
+  provider: ^6.1.2
+  flutter_polyline_points: ^2.1.0
+  loading_animation_widget: ^1.2.1
+  flutter_geofire: ^2.0.3
 
 dev_dependencies:
   flutter_test:

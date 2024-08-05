@@ -33,7 +33,7 @@ class _SignupScreenState extends State<SignupScreen> {
     cMethods.checkConnectivity(context);
 
     if (imageFile != null) //image validation
-    {
+        {
       signUpFormValidation();
     } else {
       cMethods.displaySnackBar("Please choose image first.", context);
@@ -66,7 +66,7 @@ class _SignupScreenState extends State<SignupScreen> {
   uploadImageToStorage() async {
     String imageIDName = DateTime.now().millisecondsSinceEpoch.toString();
     Reference referenceImage =
-        FirebaseStorage.instance.ref().child("Images").child(imageIDName);
+    FirebaseStorage.instance.ref().child("Images").child(imageIDName);
 
     UploadTask uploadTask = referenceImage.putFile(File(imageFile!.path));
     TaskSnapshot snapshot = await uploadTask;
@@ -88,11 +88,11 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     final User? userFirebase = (await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
+        .createUserWithEmailAndPassword(
       email: emailTextEditingController.text.trim(),
       password: passwordTextEditingController.text.trim(),
     )
-            .catchError((errorMsg) {
+        .catchError((errorMsg) {
       Navigator.pop(context);
       cMethods.displaySnackBar(errorMsg.toString(), context);
     }))
@@ -102,7 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
     Navigator.pop(context);
 
     DatabaseReference usersRef =
-        FirebaseDatabase.instance.ref().child("drivers").child(userFirebase!.uid);
+    FirebaseDatabase.instance.ref().child("drivers").child(userFirebase!.uid);
 
     Map driverCarInfo =
     {
@@ -130,7 +130,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   chooseImageFromGallery() async {
     final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
@@ -153,23 +153,23 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 imageFile == null
                     ? const CircleAvatar(
-                        radius: 86,
-                        backgroundImage:
-                            AssetImage("assets/images/avatarman.png"),
-                      )
+                  radius: 86,
+                  backgroundImage:
+                  AssetImage("assets/images/avatarman4.png"),
+                )
                     : Container(
-                        width: 180,
-                        height: 180,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                          image: DecorationImage(
-                              fit: BoxFit.fitHeight,
-                              image: FileImage(File(
-                                imageFile!.path,
-                              ))),
-                        ),
-                      ),
+                  width: 180,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey,
+                    image: DecorationImage(
+                        fit: BoxFit.fitHeight,
+                        image: FileImage(File(
+                          imageFile!.path,
+                        ))),
+                  ),
+                ),
 
                 const SizedBox(
                   height: 40,
@@ -197,6 +197,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         controller: userNameTextEditingController,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.person),
                           labelText: "Your Name",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -229,6 +230,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         controller: userPhoneTextEditingController,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.phone),
                           labelText: "Your Number",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -261,6 +263,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         controller: emailTextEditingController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.email),
                           labelText: "Your E-mail",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -294,6 +297,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         obscureText: true,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.lock),
                           labelText: "Your Password",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -326,6 +330,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         controller: vehicleModelTextEditingController,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.directions_car),
                           labelText: "Your Vehicle Model",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -358,6 +363,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         controller: vehicleColorTextEditingController,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.color_lens),
                           labelText: "Your Vehicle Color",
                           labelStyle: const TextStyle(
                             fontSize: 14,
@@ -390,6 +396,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         controller: vehicleNumberTextEditingController,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.confirmation_number),
                           labelText: "Your Vehicle Number",
                           labelStyle: const TextStyle(
                             fontSize: 14,

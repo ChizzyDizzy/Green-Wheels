@@ -14,45 +14,33 @@ class SignupScreen extends StatefulWidget {
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen>
-{
+class _SignupScreenState extends State<SignupScreen> {
   TextEditingController userNameTextEditingController = TextEditingController();
   TextEditingController userPhoneTextEditingController = TextEditingController();
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
   CommonMethods cMethods = CommonMethods();
 
-  checkIfNetworkIsAvailable()
-  {
+  checkIfNetworkIsAvailable() {
     cMethods.checkConnectivity(context);
     signUpFormValidation();
   }
-  signUpFormValidation()
-  {
-    if(userNameTextEditingController.text.trim().length < 3)
-    {
-      cMethods.displaySnackBar("your name must be atleast 4 or more characters.", context);
-    }
-    else if(userPhoneTextEditingController.text.trim().length < 7)
-    {
-      cMethods.displaySnackBar("your phone number must be atleast 8 or more characters.", context);
-    }
-    else if(!emailTextEditingController.text.contains("@"))
-    {
-      cMethods.displaySnackBar("please write valid email.", context);
-    }
-    else if(passwordTextEditingController.text.trim().length < 5)
-    {
-      cMethods.displaySnackBar("your password must be atleast 6 or more characters.", context);
-    }
-    else
-    {
-     registerNewUser();
-    }
 
+  signUpFormValidation() {
+    if (userNameTextEditingController.text.trim().length < 3) {
+      cMethods.displaySnackBar("Your name must be at least 3 or more characters.", context);
+    } else if (userPhoneTextEditingController.text.trim().length < 7) {
+      cMethods.displaySnackBar("Your phone number must be at least 7 or more characters.", context);
+    } else if (!emailTextEditingController.text.contains("@")) {
+      cMethods.displaySnackBar("Please write a valid email.", context);
+    } else if (passwordTextEditingController.text.trim().length < 6) {
+      cMethods.displaySnackBar("Your password must be at least 6 or more characters.", context);
+    } else {
+      registerNewUser();
+    }
   }
-  registerNewUser() async
-  {
+
+  registerNewUser() async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -63,19 +51,17 @@ class _SignupScreenState extends State<SignupScreen>
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailTextEditingController.text.trim(),
           password: passwordTextEditingController.text.trim(),
-        ).catchError((errorMsg)
-        {
+        ).catchError((errorMsg) {
           Navigator.pop(context);
           cMethods.displaySnackBar(errorMsg.toString(), context);
         })
     ).user;
 
-    if(!context.mounted) return;
+    if (!context.mounted) return;
     Navigator.pop(context);
 
     DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users").child(userFirebase!.uid);
-    Map userDataMap =
-    {
+    Map userDataMap = {
       "name": userNameTextEditingController.text.trim(),
       "email": emailTextEditingController.text.trim(),
       "phone": userPhoneTextEditingController.text.trim(),
@@ -84,137 +70,209 @@ class _SignupScreenState extends State<SignupScreen>
     };
     usersRef.set(userDataMap);
 
-    Navigator.push(context, MaterialPageRoute(builder: (c)=> const HomePage()));
+    Navigator.push(context, MaterialPageRoute(builder: (c) => const HomePage()));
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(24),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-            Image.asset(
-              "assets/images/logo.png"
-            ),
-
+              const SizedBox(height: 40),
+              Image.asset(
+                "assets/images/logo2.png",
+                height: 150,
+                width: 150,
+              ),
+              const SizedBox(height: 24),
               const Text(
-                "Create a User's Account",
+                "Create a User Account",
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black
+                  color: Colors.black,
                 ),
               ),
-
-              /// TEXT FIELDS ///
+              const SizedBox(height: 10),
+              const Text(
+                "In Green Wheels",
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(height: 30),
               Padding(
-                padding: const EdgeInsets.all(22),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     TextField(
                       controller: userNameTextEditingController,
                       keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "User Name",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                            color: Colors.black,
+                        labelStyle: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
                         ),
+                        hintText: "Enter your name",
+                        hintStyle: const TextStyle(color: Colors.black38),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.person, color: Colors.black54),
                       ),
                       style: const TextStyle(
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 22,),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: userPhoneTextEditingController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
                         labelText: "User Phone Number",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                            color: Colors.black,
+                        labelStyle: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
                         ),
+                        hintText: "Enter your phone number",
+                        hintStyle: const TextStyle(color: Colors.black38),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.phone, color: Colors.black54),
                       ),
                       style: const TextStyle(
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 22,),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: emailTextEditingController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "User E-mail",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
+                        labelStyle: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
                         ),
+                        hintText: "Enter your email",
+                        hintStyle: const TextStyle(color: Colors.black38),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.email, color: Colors.black54),
                       ),
                       style: const TextStyle(
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 22,),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: passwordTextEditingController,
                       obscureText: true,
                       keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "User Password",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
+                        labelStyle: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
                         ),
+                        hintText: "Enter your password",
+                        hintStyle: const TextStyle(color: Colors.black38),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.lock, color: Colors.black54),
                       ),
                       style: const TextStyle(
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 22,),
-                    
+                    const SizedBox(height: 30),
                     ElevatedButton(
-                      onPressed: ()
-                      {
-                        checkIfNetworkIsAvailable();
-                      },
+                      onPressed: checkIfNetworkIsAvailable,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20)
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text(
-                        "Sign Up"
+                        "Sign Up",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
-                    )
-
+                    ),
                   ],
                 ),
               ),
-
-              /// TEXT FIELDS + BUTTON ///
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (c)=> const LoginScreen()));
-              },
-                  child: const Text(
-                    "Already have an Account? Login Here",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
+                  Navigator.push(context, MaterialPageRoute(builder: (c) => const LoginScreen()));
+                },
+                child: const Text(
+                  "Already have an account? Login here",
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 16,
                   ),
+                ),
               ),
-
             ],
-          )
+          ),
         ),
       ),
     );
   }
 }
-
-

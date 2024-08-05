@@ -4,8 +4,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 String userName = "";
 String userPhone = "";
 String userID = FirebaseAuth.instance.currentUser!.uid;
+String pageName = "";
 
-String googleMapKey = "AIzaSyAbiyKH9la9WI4RjBUtY7gQldta6OUbB0Y";
+String googleMapKey = "AIzaSyAIJ2GmpBDhWnwoEOuYwT2nzm1rTeBWiU0";
 
 
  const CameraPosition googlePlexInitialPosition = CameraPosition(
