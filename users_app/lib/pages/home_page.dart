@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -11,28 +12,32 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/global/global_var.dart';
+import 'package:users_app/global/trip_var.dart';
+import 'package:users_app/methods/common_methods.dart';
+import 'package:users_app/methods/manage_drivers_methods.dart';
+import 'package:users_app/models/direction_details.dart';
+import 'package:users_app/models/online_nearby_drivers.dart';
 import 'package:users_app/pages/search_destination_page.dart';
 
 import '../appInfo/app_info.dart';
-import '../authentication/login_screen.dart';
-import '../global/trip_var.dart';
-import '../methods/common_methods.dart';
-import '../methods/manage_drivers_methods.dart';
-import '../models/direction_details.dart';
-import '../models/online_nearby_drivers.dart';
 import '../widgets/loading_dialog.dart';
 
-class HomePage extends StatefulWidget {
+
+class HomePage extends StatefulWidget
+{
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final Completer<GoogleMapController> googleMapCompleterController =
-      Completer<GoogleMapController>();
+
+
+class _HomePageState extends State<HomePage>
+{
+  final Completer<GoogleMapController> googleMapCompleterController = Completer<GoogleMapController>();
   GoogleMapController? controllerGoogleMap;
   Position? currentPositionOfUser;
   GlobalKey<ScaffoldState> sKey = GlobalKey<ScaffoldState>();
@@ -52,6 +57,7 @@ class _HomePageState extends State<HomePage> {
   bool nearbyOnlineDriversKeysLoaded = false;
   BitmapDescriptor? carIconNearbyDriver;
 
+
   makeDriverNearbyCarIcon()
   {
     if(carIconNearbyDriver == null)
@@ -64,67 +70,73 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
-  void updateMapTheme(GoogleMapController controller) {
-    getJsonFileFromThemes("themes/simple_style.json")
-        .then((value) => setGoogleMapStyle(value, controller));
+  void updateMapTheme(GoogleMapController controller)
+  {
+    getJsonFileFromThemes("themes/simple_style.json").then((value)=> setGoogleMapStyle(value, controller));
   }
 
-  Future<String> getJsonFileFromThemes(String mapStylePath) async {
+  Future<String> getJsonFileFromThemes(String mapStylePath) async
+  {
     ByteData byteData = await rootBundle.load(mapStylePath);
-    var list = byteData.buffer
-        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+    var list = byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
     return utf8.decode(list);
   }
 
-  setGoogleMapStyle(String googleMapStyle, GoogleMapController controller) {
+  setGoogleMapStyle(String googleMapStyle, GoogleMapController controller)
+  {
     controller.setMapStyle(googleMapStyle);
   }
 
-  getCurrentLiveLocationOfUser() async {
-    Position positionOfUser = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.bestForNavigation);
+  getCurrentLiveLocationOfUser() async
+  {
+    Position positionOfUser = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
     currentPositionOfUser = positionOfUser;
 
-    LatLng positionOfUserInLatLng = LatLng(
-        currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
+    LatLng positionOfUserInLatLng = LatLng(currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
 
-    CameraPosition cameraPosition =
-        CameraPosition(target: positionOfUserInLatLng, zoom: 15);
-    controllerGoogleMap!
-        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    CameraPosition cameraPosition = CameraPosition(target: positionOfUserInLatLng, zoom: 15);
+    controllerGoogleMap!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-    await CommonMethods.convertGeoGraphicCoOrdinatesIntoHumanReadableAddress(
-        currentPositionOfUser!, context);
+    await CommonMethods.convertGeoGraphicCoOrdinatesIntoHumanReadableAddress(currentPositionOfUser!, context);
 
     await getUserInfoAndCheckBlockStatus();
+
+    await initializeGeoFireListener();
   }
 
-  getUserInfoAndCheckBlockStatus() async {
-    DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users").child(FirebaseAuth.instance.currentUser!.uid);
+  getUserInfoAndCheckBlockStatus() async
+  {
+    DatabaseReference usersRef = FirebaseDatabase.instance.ref()
+        .child("users")
+        .child(FirebaseAuth.instance.currentUser!.uid);
 
-    await usersRef.once().then((snap) {
-      if (snap.snapshot.value != null) {
-        if ((snap.snapshot.value as Map)["blockStatus"] == "no") {
+    await usersRef.once().then((snap)
+    {
+      if(snap.snapshot.value != null)
+      {
+        if((snap.snapshot.value as Map)["blockStatus"] == "no")
+        {
           setState(() {
             userName = (snap.snapshot.value as Map)["name"];
           });
-        } else {
+        }
+        else
+        {
           FirebaseAuth.instance.signOut();
 
-          Navigator.push(
-              context, MaterialPageRoute(builder: (c) => LoginScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
 
-          cMethods.displaySnackBar(
-              "you are blocked. Contact admin: alizeb875@gmail.com", context);
+          cMethods.displaySnackBar("you are blocked. Contact admin: alizeb875@gmail.com", context);
         }
-      } else {
+      }
+      else
+      {
         FirebaseAuth.instance.signOut();
-        Navigator.push(
-            context, MaterialPageRoute(builder: (c) => LoginScreen()));
+        Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
       }
     });
   }
+
   displayUserRideDetailsContainer() async
   {
     ///Directions API
@@ -227,14 +239,14 @@ class _HomePageState extends State<HomePage> {
     Marker pickUpPointMarker = Marker(
       markerId: const MarkerId("pickUpPointMarkerID"),
       position: pickupGeoGraphicCoOrdinates,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       infoWindow: InfoWindow(title: pickUpLocation.placeName, snippet: "Pickup Location"),
     );
 
     Marker dropOffDestinationPointMarker = Marker(
       markerId: const MarkerId("dropOffDestinationPointMarkerID"),
       position: dropOffDestinationGeoGraphicCoOrdinates,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
       infoWindow: InfoWindow(title: dropOffDestinationLocation.placeName, snippet: "Destination Location"),
     );
 
@@ -309,7 +321,7 @@ class _HomePageState extends State<HomePage> {
       isDrawerOpened = true;
     });
 
-    //send trip request
+    //send ride request
   }
 
   updateAvailableNearbyOnlineDriversOnMap()
@@ -398,18 +410,29 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)
+  {
+    makeDriverNearbyCarIcon();
+
     return Scaffold(
       key: sKey,
       drawer: Container(
         width: 255,
-        color: Colors.black87,
+        color: Colors.white,
         child: Drawer(
+          backgroundColor: Colors.white10,
           child: ListView(
             children: [
-              ///header
+
+              // const Divider(
+              //   height: 1,
+              //   color: Colors.white,
+              //   thickness: 1,
+              // ),
+
+              //header
               Container(
-                color: Colors.black,
+                color: Colors.green,
                 height: 160,
                 child: DrawerHeader(
                   decoration: const BoxDecoration(
@@ -417,91 +440,86 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Row(
                     children: [
+
                       Image.asset(
-                        "assets/images/avatarman.png",
+                        "assets/images/avatarman4.png",
                         width: 60,
                         height: 60,
                       ),
-                      const SizedBox(
-                        width: 16,
-                      ),
+
+                      const SizedBox(width: 16,),
+
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+
                           Text(
                             userName,
                             style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
+
+                          const SizedBox(height: 4,),
+
                           const Text(
                             "Profile",
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                              color: Colors.white38,
                             ),
-                          )
+                          ),
+
                         ],
-                      )
+                      ),
+
                     ],
                   ),
                 ),
               ),
+              //
+              // const Divider(
+              //   height: 1,
+              //   color: Colors.grey,
+              //   thickness: 1,
+              // ),
 
-              const Divider(
-                height: 1,
-                color: Colors.white,
-                thickness: 1,
-              ),
+              const SizedBox(height: 10,),
 
-              const SizedBox(
-                height: 10,
-              ),
-
-              ///body
+              //body
               ListTile(
                 leading: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.info,
-                    color: Colors.green,
-                  ),
+                  onPressed: (){},
+                  icon: const Icon(Icons.info, color: Colors.green,),
                 ),
-                title: const Text(
-                  "About",
-                  style: TextStyle(color: Colors.green),
-                ),
+                title: const Text("About", style: TextStyle(color: Colors.black),),
               ),
+
               GestureDetector(
-                onTap: () {
+                onTap: ()
+                {
                   FirebaseAuth.instance.signOut();
 
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (c) => LoginScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
                 },
                 child: ListTile(
                   leading: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.logout,
-                      color: Colors.green,
-                    ),
+                    onPressed: (){},
+                    icon: const Icon(Icons.logout, color: Colors.green,),
                   ),
-                  title: const Text(
-                    "Logout",
-                    style: TextStyle(color: Colors.green),
-                  ),
+                  title: const Text("Logout", style: TextStyle(color: Colors.black),),
                 ),
               ),
+
             ],
           ),
         ),
       ),
       body: Stack(
         children: [
-          /// GOOGLE MAP ///
+
+          ///google map
           GoogleMap(
             padding: EdgeInsets.only(top: 26, bottom: bottomMapPadding),
             mapType: MapType.normal,
@@ -525,8 +543,7 @@ class _HomePageState extends State<HomePage> {
             },
           ),
 
-
-          ///Drawer Button///
+          ///drawer button
           Positioned(
             top: 36,
             left: 19,
@@ -561,14 +578,14 @@ class _HomePageState extends State<HomePage> {
                   radius: 20,
                   child: Icon(
                     isDrawerOpened == true ? Icons.menu : Icons.close,
-                    color: Colors.white,
+                    color: Colors.black87,
                   ),
                 ),
               ),
             ),
           ),
 
-          /// SEARCH LOCATION CONTAINER ///
+          ///search location icon button
           Positioned(
             left: 0,
             right: 0,
@@ -578,59 +595,63 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
+
                   ElevatedButton(
                     onPressed: () async
                     {
-                      var responseFromSearchPage = await Navigator.push(context, MaterialPageRoute(builder: (c) => SearchDestinationPage()));
+                      var responseFromSearchPage = await Navigator.push(context, MaterialPageRoute(builder: (c)=> SearchDestinationPage()));
 
-                      if (responseFromSearchPage == "placeSelected")
+                      if(responseFromSearchPage == "placeSelected")
                       {
-
                         displayUserRideDetailsContainer();
-
-
                       }
-                      },
+                    },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(24)),
+                        padding: const EdgeInsets.all(24)
+                    ),
                     child: const Icon(
                       Icons.search,
                       color: Colors.white,
                       size: 25,
                     ),
                   ),
+
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(24)),
+                        padding: const EdgeInsets.all(24)
+                    ),
                     child: const Icon(
                       Icons.home,
                       color: Colors.white,
                       size: 25,
                     ),
                   ),
+
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(24)),
+                        padding: const EdgeInsets.all(24)
+                    ),
                     child: const Icon(
                       Icons.work,
                       color: Colors.white,
                       size: 25,
                     ),
                   ),
+
                 ],
               ),
             ),
           ),
 
-          /// RIDE DETAILS CONTAINER ///
+          ///ride details container
           Positioned(
             left: 0,
             right: 0,
@@ -659,7 +680,7 @@ class _HomePageState extends State<HomePage> {
                     Padding(
                       padding: const EdgeInsets.only(left: 16, right: 16),
                       child: SizedBox(
-                        height: 200,
+                        height: 190,
                         child: Card(
                           elevation: 10,
                           child: Container(
@@ -700,21 +721,20 @@ class _HomePageState extends State<HomePage> {
                                   GestureDetector(
                                     onTap: ()
                                     {
-                                       setState(() {
-                                         stateOfApp = "requesting";
-                                       });
+                                      setState(() {
+                                        stateOfApp = "requesting";
+                                      });
 
-                                       displayRequestContainer();
+                                      displayRequestContainer();
 
-                                       // get available online drivers from the nearest users location
+                                      //get nearest available online drivers
 
-
-                                      // search driver
+                                      //search driver
                                     },
                                     child: Image.asset(
                                       "assets/images/uberleaf4.png",
-                                      height: 100,  // Increase height
-                                      width: 300,   // Increase width
+                                      height: 90,
+                                      width: 300,
                                     ),
                                   ),
 
@@ -740,8 +760,6 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ],
                                   ),
-
-
                                 ],
                               ),
                             ),
@@ -756,7 +774,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          /// REQUEST CONTAINER ///
+          ///request container
           Positioned(
             left: 0,
             right: 0,
@@ -791,7 +809,7 @@ class _HomePageState extends State<HomePage> {
                       width: 200,
                       child: LoadingAnimationWidget.flickr(
                         leftDotColor: Colors.greenAccent,
-                        rightDotColor: Colors.blueAccent,
+                        rightDotColor: Colors.pinkAccent,
                         size: 50,
                       ),
                     ),
@@ -808,13 +826,13 @@ class _HomePageState extends State<HomePage> {
                         height: 50,
                         width: 50,
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: Colors.white70,
                           borderRadius: BorderRadius.circular(25),
-                          border: Border.all(width: 1.5, color: Colors.white),
+                          border: Border.all(width: 1.5, color: Colors.grey),
                         ),
                         child: const Icon(
                           Icons.close,
-                          color: Colors.white,
+                          color: Colors.black,
                           size: 25,
                         ),
                       ),

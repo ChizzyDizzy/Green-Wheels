@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../global/global_var.dart';
+import '../pushNotification/push_notification_system.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -109,6 +110,22 @@ class _HomePageState extends State<HomePage>
     newTripRequestReference!.remove();
     newTripRequestReference = null;
   }
+
+  initializePushNotificationSystem()
+  {
+    PushNotificationSystem notificationSystem = PushNotificationSystem();
+    notificationSystem.generateDeviceRegistrationToken();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    initializePushNotificationSystem();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
