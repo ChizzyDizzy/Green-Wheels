@@ -12,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/global/global_var.dart';
 import 'package:users_app/global/trip_var.dart';
@@ -22,6 +23,8 @@ import 'package:users_app/models/online_nearby_drivers.dart';
 import 'package:users_app/pages/search_destination_page.dart';
 
 import '../appInfo/app_info.dart';
+import '../methods/push_notification_service.dart';
+import '../widgets/info-dialog.dart';
 import '../widgets/loading_dialog.dart';
 
 
@@ -56,6 +59,8 @@ class _HomePageState extends State<HomePage>
   String stateOfApp = "normal";
   bool nearbyOnlineDriversKeysLoaded = false;
   BitmapDescriptor? carIconNearbyDriver;
+  DatabaseReference? tripRequestRef;
+  List<OnlineNearbyDrivers>? availableNearbyOnlineDriversList;
 
 
   makeDriverNearbyCarIcon()
@@ -118,6 +123,8 @@ class _HomePageState extends State<HomePage>
         {
           setState(() {
             userName = (snap.snapshot.value as Map)["name"];
+            userPhone = (snap.snapshot.value as Map)["phone"];
+
           });
         }
         else
@@ -301,11 +308,14 @@ class _HomePageState extends State<HomePage>
       carDetailsDriver = "";
       tripStatusDisplay = 'Driver is Arriving';
     });
+
+    Restart.restartApp();
   }
 
   cancelRideRequest()
   {
     //remove ride request from database
+    tripRequestRef!.remove();
 
     setState(() {
       stateOfApp = "normal";
@@ -322,6 +332,8 @@ class _HomePageState extends State<HomePage>
     });
 
     //send ride request
+    makeTripRequest();
+
   }
 
   updateAvailableNearbyOnlineDriversOnMap()
@@ -405,6 +417,128 @@ class _HomePageState extends State<HomePage>
 
             break;
         }
+      }
+    });
+  }
+
+  makeTripRequest()
+  {
+    tripRequestRef = FirebaseDatabase.instance.ref().child("tripRequests").push();
+
+    var pickUpLocation = Provider.of<AppInfo>(context, listen: false).pickUpLocation;
+    var dropOffDestinationLocation = Provider.of<AppInfo>(context, listen: false).dropOffLocation;
+
+    Map pickUpCoOrdinatesMap =
+    {
+      "latitude": pickUpLocation!.latitudePosition.toString(),
+      "longitude": pickUpLocation.longitudePosition.toString(),
+    };
+
+    Map dropOffDestinationCoOrdinatesMap =
+    {
+      "latitude": dropOffDestinationLocation!.latitudePosition.toString(),
+      "longitude": dropOffDestinationLocation.longitudePosition.toString(),
+    };
+
+    Map driverCoOrdinates =
+    {
+      "latitude": "",
+      "longitude": "",
+    };
+
+    Map dataMap =
+    {
+      "tripID": tripRequestRef!.key,
+      "publishDateTime": DateTime.now().toString(),
+
+      "userName": userName,
+      "userPhone": userPhone,
+      "userID": userID,
+      "pickUpLatLng": pickUpCoOrdinatesMap,
+      "dropOffLatLng": dropOffDestinationCoOrdinatesMap,
+      "pickUpAddress": pickUpLocation.placeName,
+      "dropOffAddress": dropOffDestinationLocation.placeName,
+
+      "driverID": "waiting",
+      "carDetails": "",
+      "driverLocation": driverCoOrdinates,
+      "driverName": "",
+      "driverPhone": "",
+      "driverPhoto": "",
+      "fareAmount": "",
+      "status": "new",
+    };
+
+    tripRequestRef!.set(dataMap);
+
+  }
+
+
+  noDriverAvailable()
+  {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => InfoDialog(
+          title: "No Driver Available",
+          description: "No driver found in the nearby location. Please try again shortly.",
+        )
+    );
+  }
+
+
+  searchDriver()
+  {
+    if(availableNearbyOnlineDriversList!.length == 0)
+    {
+      cancelRideRequest();
+      resetAppNow();
+      noDriverAvailable();
+      return;
+    }
+
+    var currentDriver = availableNearbyOnlineDriversList![0];
+
+//send notification to this currentDriver - currentDriver means selected driver
+    sendNotificationToDriver(currentDriver);
+
+    availableNearbyOnlineDriversList!.removeAt(0);
+  }
+
+  sendNotificationToDriver(OnlineNearbyDrivers currentDriver)
+  {
+    //update driver's newTripStatus - assign tripID to current driver
+    DatabaseReference currentDriverRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(currentDriver.uidDriver.toString())
+        .child("newTripStatus");
+
+    currentDriverRef.set(tripRequestRef!.key);
+
+    //get current driver device recognition token
+    DatabaseReference tokenOfCurrentDriverRef = FirebaseDatabase.instance
+        .ref()
+        .child("drivers")
+        .child(currentDriver.uidDriver.toString())
+        .child("deviceToken");
+
+    tokenOfCurrentDriverRef.once().then((dataSnapshot)
+    {
+      if(dataSnapshot.snapshot.value != null)
+      {
+        String deviceToken = dataSnapshot.snapshot.value.toString();
+
+        //send notification
+        PushNotificationService.sendNotificationToSelectedDriver(
+            deviceToken,
+            context,
+            tripRequestRef!.key.toString()
+        );
+      }
+      else
+      {
+        return;
       }
     });
   }
@@ -728,8 +862,10 @@ class _HomePageState extends State<HomePage>
                                       displayRequestContainer();
 
                                       //get nearest available online drivers
+                                      availableNearbyOnlineDriversList = ManageDriversMethods.nearbyOnlineDriversList;
 
                                       //search driver
+                                      searchDriver();
                                     },
                                     child: Image.asset(
                                       "assets/images/uberleaf4.png",
