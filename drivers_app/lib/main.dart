@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget
       title: 'Drivers App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: FirebaseAuth.instance.currentUser == null ? LoginScreen() : HomePage(),
     );
