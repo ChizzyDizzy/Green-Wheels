@@ -1,79 +1,22 @@
 {
   "project_info": {
-    "project_number": "530541456838",
-    "firebase_url": "https://green-wheels-97a8a-default-rtdb.firebaseio.com",
-    "project_id": "green-wheels-97a8a",
-    "storage_bucket": "green-wheels-97a8a.appspot.com"
+    "project_number": "106216406985",
+    "firebase_url": "https://green-wheels-2aab0-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "green-wheels-2aab0",
+    "storage_bucket": "green-wheels-2aab0.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:530541456838:android:058863920df85acd0056c7",
+        "mobilesdk_app_id": "1:106216406985:android:4c23da77c5e1dbc63eb218",
         "android_client_info": {
-          "package_name": "com.developer.drivers_app"
+          "package_name": "com.developers.drivers_app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAIJ2GmpBDhWnwoEOuYwT2nzm1rTeBWiU0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:530541456838:android:adcb269cc833a62b0056c7",
-        "android_client_info": {
-          "package_name": "com.developer.usersapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAIJ2GmpBDhWnwoEOuYwT2nzm1rTeBWiU0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:530541456838:android:9b78d219ae495e520056c7",
-        "android_client_info": {
-          "package_name": "com.greenwheels.app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAIJ2GmpBDhWnwoEOuYwT2nzm1rTeBWiU0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:530541456838:android:1dc2b8cc2a05bf2c0056c7",
-        "android_client_info": {
-          "package_name": "com.muhammadali.driversapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAIJ2GmpBDhWnwoEOuYwT2nzm1rTeBWiU0"
+          "current_key": "AIzaSyA2QUJjjbDQVqCN872052iI21jUIWocVBE"
         }
       ],
       "services": {

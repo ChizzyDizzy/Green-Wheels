@@ -33,7 +33,7 @@ class _UsersDataListState extends State<UsersDataList>
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
-                color: Colors.green,
+                color: Colors.pink,
               ),
             ),
           );
@@ -86,9 +86,15 @@ class _UsersDataListState extends State<UsersDataList>
                   1,
                   itemsList[index]["blockStatus"] == "no" ?
                   ElevatedButton(
-                    onPressed: ()
+                    onPressed: () async
                     {
-
+                      await FirebaseDatabase.instance.ref()
+                          .child("users")
+                          .child(itemsList[index]["id"])
+                          .update(
+                          {
+                            "blockStatus": "yes",
+                          });
                     },
                     child: const Text(
                       "Block",
@@ -99,9 +105,15 @@ class _UsersDataListState extends State<UsersDataList>
                     ),
                   )
                       : ElevatedButton(
-                    onPressed: ()
+                    onPressed: () async
                     {
-
+                      await FirebaseDatabase.instance.ref()
+                          .child("users")
+                          .child(itemsList[index]["id"])
+                          .update(
+                          {
+                            "blockStatus": "no",
+                          });
                     },
                     child: const Text(
                       "Approve",

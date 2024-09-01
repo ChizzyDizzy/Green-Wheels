@@ -13,18 +13,22 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/global/global_var.dart';
 import 'package:users_app/global/trip_var.dart';
 import 'package:users_app/methods/common_methods.dart';
 import 'package:users_app/methods/manage_drivers_methods.dart';
+import 'package:users_app/methods/push_notification_service.dart';
 import 'package:users_app/models/direction_details.dart';
 import 'package:users_app/models/online_nearby_drivers.dart';
+import 'package:users_app/pages/about_page.dart';
 import 'package:users_app/pages/search_destination_page.dart';
+import 'package:users_app/pages/trips_history_page.dart';
+import 'package:users_app/widgets/info_dialog.dart';
+import 'package:users_app/widgets/payment_dialog.dart';
 
 import '../appInfo/app_info.dart';
-import '../methods/push_notification_service.dart';
-import '../widgets/info-dialog.dart';
 import '../widgets/loading_dialog.dart';
 
 
@@ -61,6 +65,8 @@ class _HomePageState extends State<HomePage>
   BitmapDescriptor? carIconNearbyDriver;
   DatabaseReference? tripRequestRef;
   List<OnlineNearbyDrivers>? availableNearbyOnlineDriversList;
+  StreamSubscription<DatabaseEvent>? tripStreamSubscription;
+  bool requestingDirectionDetailsInfo = false;
 
 
   makeDriverNearbyCarIcon()
@@ -124,7 +130,6 @@ class _HomePageState extends State<HomePage>
           setState(() {
             userName = (snap.snapshot.value as Map)["name"];
             userPhone = (snap.snapshot.value as Map)["phone"];
-
           });
         }
         else
@@ -214,8 +219,8 @@ class _HomePageState extends State<HomePage>
         && pickupGeoGraphicCoOrdinates.longitude > dropOffDestinationGeoGraphicCoOrdinates.longitude)
     {
       boundsLatLng = LatLngBounds(
-        southwest: dropOffDestinationGeoGraphicCoOrdinates,
-        northeast: pickupGeoGraphicCoOrdinates,
+          southwest: dropOffDestinationGeoGraphicCoOrdinates,
+          northeast: pickupGeoGraphicCoOrdinates,
       );
     }
     else if(pickupGeoGraphicCoOrdinates.longitude > dropOffDestinationGeoGraphicCoOrdinates.longitude)
@@ -228,15 +233,15 @@ class _HomePageState extends State<HomePage>
     else if(pickupGeoGraphicCoOrdinates.latitude > dropOffDestinationGeoGraphicCoOrdinates.latitude)
     {
       boundsLatLng = LatLngBounds(
-        southwest: LatLng(dropOffDestinationGeoGraphicCoOrdinates.latitude, pickupGeoGraphicCoOrdinates.longitude),
-        northeast: LatLng(pickupGeoGraphicCoOrdinates.latitude, dropOffDestinationGeoGraphicCoOrdinates.longitude),
+          southwest: LatLng(dropOffDestinationGeoGraphicCoOrdinates.latitude, pickupGeoGraphicCoOrdinates.longitude),
+          northeast: LatLng(pickupGeoGraphicCoOrdinates.latitude, dropOffDestinationGeoGraphicCoOrdinates.longitude),
       );
     }
     else
     {
       boundsLatLng = LatLngBounds(
-        southwest: pickupGeoGraphicCoOrdinates,
-        northeast: dropOffDestinationGeoGraphicCoOrdinates,
+          southwest: pickupGeoGraphicCoOrdinates,
+          northeast: dropOffDestinationGeoGraphicCoOrdinates,
       );
     }
 
@@ -308,8 +313,6 @@ class _HomePageState extends State<HomePage>
       carDetailsDriver = "";
       tripStatusDisplay = 'Driver is Arriving';
     });
-
-    Restart.restartApp();
   }
 
   cancelRideRequest()
@@ -333,7 +336,6 @@ class _HomePageState extends State<HomePage>
 
     //send ride request
     makeTripRequest();
-
   }
 
   updateAvailableNearbyOnlineDriversOnMap()
@@ -471,8 +473,160 @@ class _HomePageState extends State<HomePage>
 
     tripRequestRef!.set(dataMap);
 
+    tripStreamSubscription = tripRequestRef!.onValue.listen((eventSnapshot) async
+    {
+      if(eventSnapshot.snapshot.value == null)
+      {
+        return;
+      }
+
+      if((eventSnapshot.snapshot.value as Map)["driverName"] != null)
+      {
+        nameDriver = (eventSnapshot.snapshot.value as Map)["driverName"];
+      }
+
+      if((eventSnapshot.snapshot.value as Map)["driverPhone"] != null)
+      {
+        phoneNumberDriver = (eventSnapshot.snapshot.value as Map)["driverPhone"];
+      }
+
+      if((eventSnapshot.snapshot.value as Map)["driverPhoto"] != null)
+      {
+        photoDriver = (eventSnapshot.snapshot.value as Map)["driverPhoto"];
+      }
+
+      if((eventSnapshot.snapshot.value as Map)["carDetails"] != null)
+      {
+        carDetailsDriver = (eventSnapshot.snapshot.value as Map)["carDetails"];
+      }
+
+      if((eventSnapshot.snapshot.value as Map)["status"] != null)
+      {
+        status = (eventSnapshot.snapshot.value as Map)["status"];
+      }
+
+      if((eventSnapshot.snapshot.value as Map)["driverLocation"] != null)
+      {
+        double driverLatitude = double.parse((eventSnapshot.snapshot.value as Map)["driverLocation"]["latitude"].toString());
+        double driverLongitude = double.parse((eventSnapshot.snapshot.value as Map)["driverLocation"]["longitude"].toString());
+        LatLng driverCurrentLocationLatLng = LatLng(driverLatitude, driverLongitude);
+
+        if(status == "accepted")
+        {
+          //update info for pickup to user on UI
+          //info from driver current location to user pickup location
+          updateFromDriverCurrentLocationToPickUp(driverCurrentLocationLatLng);
+        }
+        else if(status == "arrived")
+        {
+          //update info for arrived - when driver reach at the pickup point of user
+          setState(() {
+            tripStatusDisplay = 'Driver has Arrived';
+          });
+        }
+        else if(status == "ontrip")
+        {
+          //update info for dropoff to user on UI
+          //info from driver current location to user dropoff location
+          updateFromDriverCurrentLocationToDropOffDestination(driverCurrentLocationLatLng);
+        }
+      }
+
+      if(status == "accepted")
+      {
+        displayTripDetailsContainer();
+
+        Geofire.stopListener();
+
+        //remove drivers markers
+        setState(() {
+          markerSet.removeWhere((element) => element.markerId.value.contains("driver"));
+        });
+      }
+
+      if(status == "ended")
+      {
+        if((eventSnapshot.snapshot.value as Map)["fareAmount"] != null)
+        {
+          double fareAmount = double.parse((eventSnapshot.snapshot.value as Map)["fareAmount"].toString());
+
+          var responseFromPaymentDialog = await showDialog(
+              context: context,
+              builder: (BuildContext context) => PaymentDialog(fareAmount: fareAmount.toString()),
+          );
+
+          if(responseFromPaymentDialog == "paid")
+          {
+            tripRequestRef!.onDisconnect();
+            tripRequestRef = null;
+
+            tripStreamSubscription!.cancel();
+            tripStreamSubscription = null;
+
+            resetAppNow();
+
+            Restart.restartApp();
+          }
+        }
+      }
+    });
   }
 
+  displayTripDetailsContainer()
+  {
+    setState(() {
+      requestContainerHeight = 0;
+      tripContainerHeight = 291;
+      bottomMapPadding = 281;
+    });
+  }
+
+  updateFromDriverCurrentLocationToPickUp(driverCurrentLocationLatLng) async
+  {
+    if(!requestingDirectionDetailsInfo)
+    {
+      requestingDirectionDetailsInfo = true;
+
+      var userPickUpLocationLatLng = LatLng(currentPositionOfUser!.latitude, currentPositionOfUser!.longitude);
+
+      var directionDetailsPickup = await CommonMethods.getDirectionDetailsFromAPI(driverCurrentLocationLatLng, userPickUpLocationLatLng);
+
+      if(directionDetailsPickup == null)
+      {
+        return;
+      }
+
+      setState(() {
+        tripStatusDisplay = "Driver is Coming - ${directionDetailsPickup.durationTextString}";
+      });
+
+      requestingDirectionDetailsInfo = false;
+    }
+  }
+
+  updateFromDriverCurrentLocationToDropOffDestination(driverCurrentLocationLatLng) async
+  {
+    if(!requestingDirectionDetailsInfo)
+    {
+      requestingDirectionDetailsInfo = true;
+
+      var dropOffLocation = Provider.of<AppInfo>(context, listen: false).dropOffLocation;
+      var userDropOffLocationLatLng = LatLng(dropOffLocation!.latitudePosition!, dropOffLocation.longitudePosition!);
+
+      var directionDetailsPickup = await CommonMethods.getDirectionDetailsFromAPI(driverCurrentLocationLatLng, userDropOffLocationLatLng);
+
+      if(directionDetailsPickup == null)
+      {
+        return;
+      }
+
+      setState(() {
+        tripStatusDisplay = "Driving to DropOff Location - ${directionDetailsPickup.durationTextString}";
+      });
+
+      requestingDirectionDetailsInfo = false;
+    }
+  }
 
   noDriverAvailable()
   {
@@ -486,7 +640,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-
   searchDriver()
   {
     if(availableNearbyOnlineDriversList!.length == 0)
@@ -499,7 +652,7 @@ class _HomePageState extends State<HomePage>
 
     var currentDriver = availableNearbyOnlineDriversList![0];
 
-//send notification to this currentDriver - currentDriver means selected driver
+    //send notification to this currentDriver - currentDriver means selected driver
     sendNotificationToDriver(currentDriver);
 
     availableNearbyOnlineDriversList!.removeAt(0);
@@ -540,6 +693,45 @@ class _HomePageState extends State<HomePage>
       {
         return;
       }
+
+      const oneTickPerSec = Duration(seconds: 1);
+
+      var timerCountDown = Timer.periodic(oneTickPerSec, (timer)
+      {
+        requestTimeoutDriver = requestTimeoutDriver - 1;
+
+        //when trip request is not requesting means trip request cancelled - stop timer
+        if(stateOfApp != "requesting")
+        {
+          timer.cancel();
+          currentDriverRef.set("cancelled");
+          currentDriverRef.onDisconnect();
+          requestTimeoutDriver = 10;
+        }
+
+        //when trip request is accepted by online nearest available driver
+        currentDriverRef.onValue.listen((dataSnapshot)
+        {
+          if(dataSnapshot.snapshot.value.toString() == "accepted")
+          {
+            timer.cancel();
+            currentDriverRef.onDisconnect();
+            requestTimeoutDriver = 20;
+          }
+        });
+
+        //if 20 seconds passed - send notification to next nearest online available driver
+        if(requestTimeoutDriver == 0)
+        {
+          currentDriverRef.set("timeout");
+          timer.cancel();
+          currentDriverRef.onDisconnect();
+          requestTimeoutDriver = 20;
+
+          //send notification to next nearest online available driver
+          searchDriver();
+        }
+      });
     });
   }
 
@@ -560,7 +752,7 @@ class _HomePageState extends State<HomePage>
 
               // const Divider(
               //   height: 1,
-              //   color: Colors.white,
+              //   color: Colors.grey,
               //   thickness: 1,
               // ),
 
@@ -570,7 +762,7 @@ class _HomePageState extends State<HomePage>
                 height: 160,
                 child: DrawerHeader(
                   decoration: const BoxDecoration(
-                    color: Colors.green,
+                    color: Colors.white10,
                   ),
                   child: Row(
                     children: [
@@ -612,7 +804,7 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
               ),
-              //
+
               // const Divider(
               //   height: 1,
               //   color: Colors.grey,
@@ -622,12 +814,32 @@ class _HomePageState extends State<HomePage>
               const SizedBox(height: 10,),
 
               //body
-              ListTile(
-                leading: IconButton(
-                  onPressed: (){},
-                  icon: const Icon(Icons.info, color: Colors.green,),
+              GestureDetector(
+                onTap: ()
+                {
+                  Navigator.push(context, MaterialPageRoute(builder: (c)=> TripsHistoryPage()));
+                },
+                child: ListTile(
+                  leading: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.history, color: Colors.green,),
+                  ),
+                  title: const Text("History", style: TextStyle(color: Colors.black),),
                 ),
-                title: const Text("About", style: TextStyle(color: Colors.black),),
+              ),
+
+              GestureDetector(
+                onTap: ()
+                {
+                  Navigator.push(context, MaterialPageRoute(builder: (c)=> AboutPage()));
+                },
+                child: ListTile(
+                  leading: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.info, color: Colors.green,),
+                  ),
+                  title: const Text("About", style: TextStyle(color: Colors.black),),
+                ),
               ),
 
               GestureDetector(
@@ -712,7 +924,7 @@ class _HomePageState extends State<HomePage>
                   radius: 20,
                   child: Icon(
                     isDrawerOpened == true ? Icons.menu : Icons.close,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -741,9 +953,9 @@ class _HomePageState extends State<HomePage>
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(24)
+                      backgroundColor: Colors.green,
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(24)
                     ),
                     child: const Icon(
                       Icons.search,
@@ -826,31 +1038,31 @@ class _HomePageState extends State<HomePage>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
 
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8, right: 8),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          (tripDirectionDetailsInfo != null) ? tripDirectionDetailsInfo!.distanceTextString! : "",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white70,
-                                            fontWeight: FontWeight.bold,
+                                   Padding(
+                                     padding: const EdgeInsets.only(left: 8, right: 8),
+                                     child: Row(
+                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                       children: [
+                                         Text(
+                                           (tripDirectionDetailsInfo != null) ? tripDirectionDetailsInfo!.distanceTextString! : "",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white70,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
 
-                                        Text(
-                                          (tripDirectionDetailsInfo != null) ? tripDirectionDetailsInfo!.durationTextString! : "",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.white70,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                         Text(
+                                           (tripDirectionDetailsInfo != null) ? tripDirectionDetailsInfo!.durationTextString! : "",
+                                           style: const TextStyle(
+                                             fontSize: 16,
+                                             color: Colors.white70,
+                                             fontWeight: FontWeight.bold,
+                                           ),
+                                         ),
+                                       ],
+                                     ),
+                                   ),
 
                                   GestureDetector(
                                     onTap: ()
@@ -874,28 +1086,23 @@ class _HomePageState extends State<HomePage>
                                     ),
                                   ),
 
-                                  Column(
-                                    children: [
-                                      Text(
-                                        (tripDirectionDetailsInfo != null)
-                                            ? "\LKR ${(cMethods.calculateFareAmount(tripDirectionDetailsInfo!)).toString()}"
-                                            : "",
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.white70,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(
-                                        "Nissan Leaf",
-                                        style: TextStyle(
+                                  Text(
+                                    (tripDirectionDetailsInfo != null) ? "\LKR ${(cMethods.calculateFareAmount(tripDirectionDetailsInfo!)).toString()}" : "",
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text(
+                                      "Nissan Leaf",
+                                          style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.white70,
                                           fontWeight: FontWeight.normal,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+
                                 ],
                               ),
                             ),
@@ -964,7 +1171,7 @@ class _HomePageState extends State<HomePage>
                         decoration: BoxDecoration(
                           color: Colors.white70,
                           borderRadius: BorderRadius.circular(25),
-                          border: Border.all(width: 1.5, color: Colors.grey),
+                          border: Border.all(width: 1.5, color: Colors.green),
                         ),
                         child: const Icon(
                           Icons.close,
@@ -972,6 +1179,149 @@ class _HomePageState extends State<HomePage>
                           size: 25,
                         ),
                       ),
+                    ),
+
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          ///trip details container
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: tripContainerHeight,
+              decoration: const BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                boxShadow:
+                [
+                  BoxShadow(
+                    color: Colors.white24,
+                    blurRadius: 15.0,
+                    spreadRadius: 0.5,
+                    offset: Offset(
+                      0.7,
+                      0.7,
+                    ),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    const SizedBox(height: 5,),
+
+                    //trip status display text
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          tripStatusDisplay,
+                          style: const TextStyle(fontSize: 19, color: Colors.grey,),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 19,),
+
+                    const Divider(
+                      height: 1,
+                      color: Colors.white70,
+                      thickness: 1,
+                    ),
+
+                    const SizedBox(height: 19,),
+
+                    //image - driver name and driver car details
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+
+                        ClipOval(
+                          child: Image.network(
+                            photoDriver == ''
+                                ? "https://firebasestorage.googleapis.com/v0/b/green-wheels-2aab0.appspot.com/o/avatarman4.png?alt=media&token=e2f1edb5-f2b7-4116-be82-ec93e856f973"
+                                : photoDriver,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+
+                        const SizedBox(width: 8,),
+
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            Text(nameDriver, style: const TextStyle(fontSize: 20, color: Colors.grey,),),
+
+                            Text(carDetailsDriver, style: const TextStyle(fontSize: 14, color: Colors.grey,),),
+
+                          ],
+                        ),
+
+                      ],
+                    ),
+
+                    const SizedBox(height: 19,),
+
+                    const Divider(
+                      height: 1,
+                      color: Colors.white70,
+                      thickness: 1,
+                    ),
+
+                    const SizedBox(height: 19,),
+
+                    //call driver btn
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+
+                        GestureDetector(
+                          onTap: ()
+                          {
+                            launchUrl(Uri.parse("tel://$phoneNumberDriver"));
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+
+                              Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(Radius.circular(25)),
+                                  border: Border.all(
+                                    width: 1,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.phone,
+                                  color: Colors.white,
+                                ),
+                              ),
+
+                              const SizedBox(height: 11,),
+
+                              const Text("Call", style: TextStyle(color: Colors.grey,),),
+
+                            ],
+                          ),
+                        ),
+
+                      ],
                     ),
 
                   ],

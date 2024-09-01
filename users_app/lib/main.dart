@@ -1,15 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:users_app/appInfo/app_info.dart';
 import 'package:users_app/authentication/login_screen.dart';
 import 'package:users_app/authentication/signup_screen.dart';
 import 'package:users_app/pages/home_page.dart';
-
-import 'dependency_injection.dart';
 
 Future<void> main() async
 {
@@ -25,8 +22,6 @@ Future<void> main() async
   });
 
   runApp(const MyApp());
-  DependencyInjection.init();
-
 }
 
 class MyApp extends StatelessWidget
@@ -38,18 +33,14 @@ class MyApp extends StatelessWidget
   {
     return ChangeNotifierProvider(
       create: (context) => AppInfo(),
-      child: GetMaterialApp(
+      child: MaterialApp(
         title: 'Flutter User App',
         debugShowCheckedModeBanner: false,
         theme: ThemeData.dark().copyWith(
-          scaffoldBackgroundColor: Colors.white,
+          scaffoldBackgroundColor: Colors.black,
         ),
         home: FirebaseAuth.instance.currentUser == null ? LoginScreen() : HomePage(),
       ),
     );
   }
 }
-
-
-
-

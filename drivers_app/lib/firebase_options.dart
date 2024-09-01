@@ -17,17 +17,29 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,54 +52,12 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC2W9PZteEUboByTOmcC-t_HBThg1E8wEM',
-    appId: '1:530541456838:web:faa8eadfb7aeb1c70056c7',
-    messagingSenderId: '530541456838',
-    projectId: 'green-wheels-97a8a',
-    authDomain: 'green-wheels-97a8a.firebaseapp.com',
-    databaseURL: 'https://green-wheels-97a8a-default-rtdb.firebaseio.com',
-    storageBucket: 'green-wheels-97a8a.appspot.com',
-    measurementId: 'G-ZBD51LZ6TE',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA8ZMnztS5H0oBP29_zQ4K7s0_IoROkq3g',
-    appId: '1:530541456838:android:058863920df85acd0056c7',
-    messagingSenderId: '530541456838',
-    projectId: 'green-wheels-97a8a',
-    databaseURL: 'https://green-wheels-97a8a-default-rtdb.firebaseio.com',
-    storageBucket: 'green-wheels-97a8a.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAdnkNmF2cAJ2o88LVMaB15mK3y78DnW6E',
-    appId: '1:530541456838:ios:c6d7b04aa7a42ce00056c7',
-    messagingSenderId: '530541456838',
-    projectId: 'green-wheels-97a8a',
-    databaseURL: 'https://green-wheels-97a8a-default-rtdb.firebaseio.com',
-    storageBucket: 'green-wheels-97a8a.appspot.com',
-    iosBundleId: 'com.example.driversApp',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAdnkNmF2cAJ2o88LVMaB15mK3y78DnW6E',
-    appId: '1:530541456838:ios:c6d7b04aa7a42ce00056c7',
-    messagingSenderId: '530541456838',
-    projectId: 'green-wheels-97a8a',
-    databaseURL: 'https://green-wheels-97a8a-default-rtdb.firebaseio.com',
-    storageBucket: 'green-wheels-97a8a.appspot.com',
-    iosBundleId: 'com.example.driversApp',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyC2W9PZteEUboByTOmcC-t_HBThg1E8wEM',
-    appId: '1:530541456838:web:99ff8dbc0b579ed80056c7',
-    messagingSenderId: '530541456838',
-    projectId: 'green-wheels-97a8a',
-    authDomain: 'green-wheels-97a8a.firebaseapp.com',
-    databaseURL: 'https://green-wheels-97a8a-default-rtdb.firebaseio.com',
-    storageBucket: 'green-wheels-97a8a.appspot.com',
-    measurementId: 'G-1HD0JVSC47',
+    apiKey: 'AIzaSyA2QUJjjbDQVqCN872052iI21jUIWocVBE',
+    appId: '1:106216406985:android:4c23da77c5e1dbc63eb218',
+    messagingSenderId: '106216406985',
+    projectId: 'green-wheels-2aab0',
+    databaseURL: 'https://green-wheels-2aab0-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'green-wheels-2aab0.appspot.com',
   );
 }

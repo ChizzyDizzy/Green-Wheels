@@ -49,7 +49,7 @@ class _PredictionPlaceUIState extends State<PredictionPlaceUI>
       dropOffLocation.placeID = placeID;
 
       Provider.of<AppInfo>(context, listen: false).updateDropOffLocation(dropOffLocation);
-
+      
       Navigator.pop(context, "placeSelected");
     }
   }
@@ -75,7 +75,7 @@ class _PredictionPlaceUIState extends State<PredictionPlaceUI>
 
                 const Icon(
                   Icons.share_location,
-                  color: Colors.red,
+                  color: Colors.grey,
                 ),
 
                 const SizedBox(width: 13,),
@@ -90,7 +90,7 @@ class _PredictionPlaceUIState extends State<PredictionPlaceUI>
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 16,
-                          color: Colors.green,
+                          color: Colors.black87,
                         ),
                       ),
 

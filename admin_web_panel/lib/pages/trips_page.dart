@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../methods/common_methods.dart';
+import '../widgets/trips_data_list.dart';
 
 class TripsPage extends StatefulWidget
 {
@@ -33,7 +35,6 @@ class _TripsPageState extends State<TripsPage>
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green,
                   ),
                 ),
               ),
@@ -55,7 +56,7 @@ class _TripsPageState extends State<TripsPage>
               ),
 
               //display data
-
+              TripsDataList(),
             ],
           ),
         ),

@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:users_app/pages/profile_page.dart';
 import 'package:users_app/pages/trips_page.dart';
+
 import 'earnings_page.dart';
 import 'home_page.dart';
 
@@ -63,8 +63,8 @@ class _DashboardState extends State<Dashboard> with SingleTickerProviderStateMix
         items: const
         [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: "Home"
+            icon: Icon(Icons.home),
+            label: "Home"
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.credit_card),
@@ -80,12 +80,11 @@ class _DashboardState extends State<Dashboard> with SingleTickerProviderStateMix
           ),
         ],
         currentIndex: indexSelected,
-        backgroundColor: Colors.white,
-        unselectedItemColor: Colors.black,
+        //backgroundColor: Colors.grey,
+        unselectedItemColor: Colors.white,
         selectedItemColor: Colors.green,
         showSelectedLabels: true,
-        unselectedFontSize: 16,
-        selectedLabelStyle: const TextStyle(fontSize: 20),
+        selectedLabelStyle: const TextStyle(fontSize: 12),
         type: BottomNavigationBarType.fixed,
         onTap: onBarItemClicked,
       ),

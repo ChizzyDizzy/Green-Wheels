@@ -10,14 +10,14 @@ void main() async
 
   await Firebase.initializeApp(
     options:const FirebaseOptions(
-        apiKey: "AIzaSyC2W9PZteEUboByTOmcC-t_HBThg1E8wEM",
-        authDomain: "green-wheels-97a8a.firebaseapp.com",
-        databaseURL: "https://green-wheels-97a8a-default-rtdb.firebaseio.com",
-        projectId: "green-wheels-97a8a",
-        storageBucket: "green-wheels-97a8a.appspot.com",
-        messagingSenderId: "530541456838",
-        appId: "1:530541456838:web:0c0bfdfbbf59a5240056c7",
-        measurementId: "G-QQ2WRMNV6B"
+        apiKey: "AIzaSyA2QUJjjbDQVqCN872052iI21jUIWocVBE",
+        authDomain: "green-wheels-2aab0.firebaseapp.com",
+        databaseURL: "https://green-wheels-2aab0-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "green-wheels-2aab0",
+        storageBucket: "green-wheels-2aab0.appspot.com",
+        messagingSenderId: "106216406985",
+        appId: "1:106216406985:web:b4759814e97cfecb3eb218",
+        measurementId: "G-4E4RR3R923"
     ),
 
   );

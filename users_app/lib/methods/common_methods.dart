@@ -106,8 +106,8 @@ class CommonMethods
 
   String calculateFareAmount(DirectionDetails directionDetails) {
     // Sri Lankan fare rates
-    double baseFareAmount = 60.0; // Base fare in LKR
-    double distancePerKmAmount = 50.0; // Rate per km in LKR
+    double baseFareAmount = 250.0; // Base fare in LKR
+    double distancePerKmAmount = 300.0; // Rate per km in LKR
     double durationPerMinuteAmount = 2.5; // Rate per minute in LKR
 
     // Convert distance from meters to kilometers

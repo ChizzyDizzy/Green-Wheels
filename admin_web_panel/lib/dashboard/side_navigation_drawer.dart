@@ -21,7 +21,7 @@ class SideNavigationDrawer extends StatefulWidget {
 
 class _SideNavigationDrawerState extends State<SideNavigationDrawer>
 {
-  Widget chosenScreen = Dashboard();
+  Widget chosenScreen = const Dashboard();
 
   sendAdminTo(selectedPage)
   {
@@ -29,19 +29,19 @@ class _SideNavigationDrawerState extends State<SideNavigationDrawer>
     {
       case DriversPage.id:
         setState(() {
-          chosenScreen = DriversPage();
+          chosenScreen = const DriversPage();
         });
         break;
 
       case UsersPage.id:
         setState(() {
-          chosenScreen = UsersPage();
+          chosenScreen = const UsersPage();
         });
         break;
 
       case TripsPage.id:
         setState(() {
-          chosenScreen = TripsPage();
+          chosenScreen = const TripsPage();
         });
         break;
     }

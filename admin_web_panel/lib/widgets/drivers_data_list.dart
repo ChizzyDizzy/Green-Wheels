@@ -33,7 +33,7 @@ class _DriversDataListState extends State<DriversDataList>
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
-                color: Colors.green,
+                color: Colors.pink,
               ),
             ),
           );
@@ -71,8 +71,8 @@ class _DriversDataListState extends State<DriversDataList>
                   1,
                   Image.network(
                     itemsList[index]["photo"].toString(),
-                    width: 100,
-                    height: 100,
+                    width: 50,
+                    height: 50,
                   ),
                 ),
 
@@ -97,35 +97,47 @@ class _DriversDataListState extends State<DriversDataList>
                 cMethods.data(
                   1,
                   itemsList[index]["earnings"] != null ?
-                  Text("\$ " + itemsList[index]["earnings"].toString())
-                      : const Text("\$ 0"),
+                  Text("\LKR " + itemsList[index]["earnings"].toString())
+                      : const Text("\LKR 0"),
                 ),
 
                 cMethods.data(
                   1,
                   itemsList[index]["blockStatus"] == "no" ?
                   ElevatedButton(
-                    onPressed: ()
+                    onPressed: () async
                     {
-
+                      await FirebaseDatabase.instance.ref()
+                          .child("drivers")
+                          .child(itemsList[index]["id"])
+                          .update(
+                          {
+                            "blockStatus": "yes",
+                          });
                     },
                     child: const Text(
                       "Block",
                       style: TextStyle(
-                        color: Colors.red,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   )
                       : ElevatedButton(
-                    onPressed: ()
+                    onPressed: () async
                     {
-
+                      await FirebaseDatabase.instance.ref()
+                          .child("drivers")
+                          .child(itemsList[index]["id"])
+                          .update(
+                          {
+                            "blockStatus": "no",
+                          });
                     },
                     child: const Text(
                       "Approve",
                       style: TextStyle(
-                        color: Colors.green,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

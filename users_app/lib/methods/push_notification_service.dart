@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../appInfo/app_info.dart';
 import '../global/global_var.dart';
 
-///Updated in June 2024
+
 ///This PushNotificationService only you have to update with below code for new FCM Cloud Messaging V1 API
 class PushNotificationService
 {
@@ -15,21 +15,20 @@ class PushNotificationService
   {
     final serviceAccountJson =
     {
-
-        "type": "service_account",
-        "project_id": "green-wheels-97a8a",
-        "private_key_id": "3564f715b335d0df4f8203238a2375aa81ee387c",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCzz8HRPOZqCUTU\nZy2K2m6jiBZEn5DJiTqwJmZYEZLI6Dc+p2EQSchX/hivZmZTesxaM2QjL6P/Qzr2\nPnZYFCmfKxS/HtGqDqdx/6B2Pc2t/xfWTsAXuqY26ONWCoS4FjbH8E8TYjp8GpbI\nx+w4BWikE8VrnNAWOZc5V5zhq+gayQFD2ui/g7uP2wc/yBVdf4umH7O/KtJ/uikU\nwFkoo508a1FCVZDtxQM2rSJsinut/Gu3cpMu71f8WTFltOixM0JKFaHDyUIRYsBo\nJLU58jCH6JvQE3ii299DVRT7hSOJvoGTD4rrs7cT5v4TctR+gLa8wbaNMy1FXfev\noJh++ZJ1AgMBAAECggEAEWsMNuUj2ty3/q1aA4viUNQTeCVO5L724O5vVpOpOO4J\nv/d91xKWpjN2l7MfMXIBTrGQvznTtJwCH61wUFrvpzwIn/Tv0X3m6YueMyYMgRDn\ncbqiMApEJKiNsR2GusBoIRkdx95plPEMbzmyn8CiYNaLdr+zhpugkwzyJQg+jS2G\nxbf2DrrcSMwm9g77PkpcXnk5Ts1yc/txzEDYyE1NqoQx+L9G+xbWQuKGsvtNbFXe\nbljsX5kgZES/JAgh6lQDB4mnCvuFu3ZltzGikiu82WJQ5PAIN5ijPUPQnxRnz7X/\nt53gjutM0wqvksmGkFOHgPei6uQ8xN8h+B98CYrnQQKBgQDq1TUnS7vJUrsKroQa\nbDOkiN8B8CyFZPZ0sQUw0ucFlFSLElJpE8GdtvIuRx5Kp4FqLhqHggJHygaGAEzs\ntP5PxT8gYL3Z+v7EytPd3x+vL8L6ydycdorHqnRdfrbKauDKLcYNmc2TAFLAXney\nm9Po2kaZfEmrTpyM46LJEb2R1QKBgQDEBO1r2xh+a6RNC+9Y3hPiub+QcGHAUIBA\nKpsJpFiHSsigNEbUxLWJMoR40Dyxbt5qT5rqNI60UktvV3u0gvlk0RBjUc2e7ety\nH99RLtDZ5Fk7rbmlcpaJnlwYFs3eXj5giDRKvbZTkJ/4iAkM4eKLIKz/4+Iz1K9w\nWe99FT+uIQKBgQCsO/H/P0Gc2CvNGtBTHNcHr0d5AXF16OYGEiuPcq/0XKVhVu/Q\nl6fjB+I6ZPjnolF90hCtIIKRqq/8Kk5BMkJvuWiiU7ILJVckeOrJiTOQ5sPn8pP2\nwc7pwLAWPrDMZ3U1dDsVkJ/BWHRZGTBLdJUI7MbpHcpedYrGntKvDG7wfQKBgQCg\nHBI+BgEUyiGzGSuQoB0IFYbmmRUPO/H195cZohb5s1j6mpi8lExf21afRCA/Ifsk\nRQ+ZfAKQQaQCNygBQvYopifHqHrW9Sla17PWIPJQ+Bb3CyjXfih+Ek7REldn6fzz\nZm2oGxvBWCGCpMMXta4QzEji3yXWBkSi9aMLvX59YQKBgQCjBoVpZsxC7vH5ET6k\nc2ZRoN0mVpDzhXA2IXfR4pPlOkJRtvx3qgLSaALSjvjQqDG6LP99T5mLt3Kg+QRL\nMjpu/9LFmyOSW5XYc+MItOjl9wcXBDET66kgYh+4zNKtJNdrGl50PLUf3L5YXMmM\nMfuHV+duKGUUiIue2bql7BnyNg==\n-----END PRIVATE KEY-----\n",
-        "client_email": "green-wheels-2024@green-wheels-97a8a.iam.gserviceaccount.com",
-        "client_id": "113856047793050385773",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/green-wheels-2024%40green-wheels-97a8a.iam.gserviceaccount.com",
-        "universe_domain": "googleapis.com"
-
+      "type": "service_account",
+      "project_id": "green-wheels-2aab0",
+      "private_key_id": "1b706e6efa6ff29d5d7d2465ebdb3716e7a7fa31",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDaVwwnyuOs/dvp\nAxdXPt14Ul/SqOxHkZXgJ+NRBZT3Upvj2UABMC4l1C5x/LJeiir2ftyixJ5XC3/5\ntCAeQ/eSilAF4ox5p6WPiPJHdY+W5E+QkSzOYDdY6jrAKg9OUPkH7sDX0VvcCjYg\nDlwEH0wgFn/dw3850aZek4hTQlljM2NWmVKB3s6UboUaEC88LrlWjySLkp0F42Pk\n6CREs+OL9OQKEgwhngjNAz0BFR2vc+HRBSzWQfDwXUyunfZhxdkEwbhAe2+ZIw2f\nt+kcV6SjGw8YQbdC6dXXxdjwiqvFceEGXdxJna8j+meRlvakh2fu70vywh2VhqM+\n81u8O+Q9AgMBAAECggEAD2AXdIrESPizN6/LHHxcm8mUFSqK09+r5nGYpCpYrV9k\nOjiOWhTIbEtl51QDQ9jrIgdPavF5enK8FQAfly1z9udO+OMemuLUK+h+aO/5DIgZ\nzEMLwXz+6xIUGg5Od8QIH7DPrYwln4E+lTgGymBhjgygtKPPECDGbq9EjCNGVk/Q\nkq6yxq2OtwTt4uaj9eLF88xdPDi6NiZXQJC50RWlzBqS60nBZp/tVWJYGjmC9aBa\n2YTE2yGQoS3+86es8vc4lFkq9V6rINFhyogmcpsiFXfKjzUZ7kqdI7ab0PavtOP2\n5ZHU5iyRgiwHxrId36yV1LSH+FWRxRf118GxT2fCRwKBgQDxdKZJ+09fS8rQnEYs\nhzRfclQA3NbcuxH+/9GQvAVZStz7FuQiAiW26z+slD5UdFAsoIFj+amBgyqCV5n8\nl3FRm38tTc7XoRbyz0roTqbY2bUYVAnnvMP/jTdQ7mob4eswOGQOwGeBlcjDnW9/\nXXwy+Dn0jhyn4AqhWOlxREFEewKBgQDnffHj+ju5UA14+yOPNktVxlrBc5iYMqpk\nV2buiCMR9u6/585gRQt/Ql4iHUrDt0fdKrw9m9WKkdl2vNMOk3Tfph35ha8As6rj\nAwCSS89emXV+f6zlp50iT6h9Y79A5w0IMkT+qaPOHPf7V7/U2A2+Df1lSsBXYZ7C\nW2iCU08opwKBgQCghQ0758/nqaqGry3T0nrV7Vq9TBOnoNIg9Y8rqmPf7e4lGx3F\nIipShejJ4a/iU4UtdfMvNL4ktL+g8X4Ut9WFDFwrESwunBB2karZ79fqGCnVp6EC\nJ7MhhI8+xZFTQgkqAIM8b1sggiR7L4H9aXf1JqLY21VfoYlPpJ1lSJwfWwKBgQC5\niLnMTIx9k+mYY0A20f9DOf0XOzy8Dy99yIdY+oeRKGZmLLW9dtkmH90uXmfDwSu5\n2TyR7EoUC51Niz1lW026ynsPt9NxLo7x70AQAO6tFTWUM2QxlEteapXSGZX5wLUz\nMocVzITa92DRc5zuTFOHVdMX0feikT0a7QQwH/E71QKBgQCydwEXYJ/q9R+BLUN/\nMPmr+Z8i07CC3Q+RCjiBRAAKhyPQYOsKIy5W8Rm5Seq4mEtRajI3Pm/LAuanyRZ5\nqLoSp/L1M8LONHlFh7K2IaX6AGq5ePiOFL3ozG3pareT9P3fh8siYZEL8WoukyLf\ngKfX7yPLRWBH2ydRTW654eWkig==\n-----END PRIVATE KEY-----\n",
+      "client_email": "green-wheels-2024@green-wheels-2aab0.iam.gserviceaccount.com",
+      "client_id": "106630944460431349784",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/green-wheels-2024%40green-wheels-2aab0.iam.gserviceaccount.com",
+      "universe_domain": "googleapis.com"
 
     };
+
 
     List<String> scopes =
     [
@@ -61,7 +60,7 @@ class PushNotificationService
     String pickUpAddress = Provider.of<AppInfo>(context, listen: false).pickUpLocation!.placeName.toString();
 
     final String serverAccessTokenKey = await getAccessToken() ; // Your FCM server access token key
-    String endpointFirebaseCloudMessaging = 'https://fcm.googleapis.com/v1/projects/green-wheels-97a8a/messages:send';
+    String endpointFirebaseCloudMessaging = 'https://fcm.googleapis.com/v1/projects/green-wheels-2aab0/messages:send';
 
     final Map<String, dynamic> message = {
       'message': {
